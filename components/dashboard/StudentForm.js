@@ -2,6 +2,21 @@
 import { useState } from 'react';
 import { addStudent } from '@/lib/data';
 
+const CONSULTATION_REASONS = [
+    "MC 1: Problemas de organización y planificación",
+    "MC 2: Regulación emocional",
+    "MC 3: Síntomas depresivos",
+    "MC 4: Síntomas de ansiedad",
+    "MC 5: Baja autoestima o inseguridad",
+    "MC 6: Desmotivación académica o personal",
+    "MC 7: Dificultades de adaptación",
+    "MC 8: Eventos estresantes recientes",
+    "MC 9: Dificultades interpersonales",
+    "MC 10: Malestar inespecífico",
+    "MC 11: Crisis vocacional o motivacional",
+    "MC 12: Trámites y certificaciones"
+];
+
 export default function StudentForm({ onSuccess }) {
     const [formData, setFormData] = useState({
         name: '',
@@ -9,6 +24,7 @@ export default function StudentForm({ onSuccess }) {
         career: '',
         antecedents: '',
         source: 'DISE', // Default source
+        consultationReason: '',
         destination: 'CADE',
         destinationDetail: '',
         priority: 'LOW' // Default green
@@ -28,6 +44,7 @@ export default function StudentForm({ onSuccess }) {
                     career: '',
                     antecedents: '',
                     source: 'DISE',
+                    consultationReason: '',
                     destination: 'CADE',
                     destinationDetail: '',
                     priority: 'LOW'
@@ -100,6 +117,21 @@ export default function StudentForm({ onSuccess }) {
                             <option value="DISE">DISE</option>
                             <option value="CADE">CADE</option>
                             <option value="OTROS">OTROS</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs font-bold text-gray-500">Motivo de Consulta (Tipificación)</label>
+                        <select
+                            name="consultationReason"
+                            value={formData.consultationReason}
+                            onChange={handleChange}
+                            className="p-2 border rounded bg-gray-50 text-sm w-full"
+                        >
+                            <option value="">-- Seleccionar Motivo --</option>
+                            {CONSULTATION_REASONS.map(reason => (
+                                <option key={reason} value={reason}>{reason}</option>
+                            ))}
                         </select>
                     </div>
                 </div>

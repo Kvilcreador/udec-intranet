@@ -77,6 +77,27 @@ export default function StudentPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left Column: Antecedents & Context */}
                 <div className="flex flex-col gap-6">
+                    {/* Derivation Info Card */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <span>📋</span> Datos de Derivación
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <span className="text-xs font-bold text-gray-500 uppercase block mb-1">Origen</span>
+                                <span className="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full inline-block">
+                                    {student.source || 'DISE'}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="text-xs font-bold text-gray-500 uppercase block mb-1">Motivo (Tipificación)</span>
+                                <span className="text-sm font-medium text-blue-800 bg-blue-50 px-2 py-1 rounded block border border-blue-100">
+                                    {student.consultationReason || 'No tipificado'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="bg-white p-6 rounded-lg shadow-sm border h-full">
                         <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <span>📄</span> Antecedentes del Caso
