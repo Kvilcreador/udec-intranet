@@ -1,0 +1,29 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid transparent;
+}
+
+.low {
+    background-color: hsl(142 76% 95%);
+    color: hsl(142 76% 30%);
+    border-color: hsl(142 76% 80%);
+}
+
+.medium {
+    background-color: hsl(38 92% 95%);
+    color: hsl(38 90% 30%);
+    border-color: hsl(38 92% 80%);
+}
+
+.high {
+    background-color: hsl(0 84% 95%);
+    color: hsl(0 84% 40%);
+    border-color: hsl(0 84% 80%);
+}
