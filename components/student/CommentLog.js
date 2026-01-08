@@ -7,17 +7,25 @@ export default function CommentLog({ studentId, comments, onUpdate }) {
     const { currentUser } = useAuth();
     const [text, setText] = useState('');
 
-    const handleSubmit = (e) => {
+    const [isSending, setIsSending] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!text) return;
 
-        addComment(studentId, {
-            user: currentUser.email,
-            text: text
-        });
-
-        setText('');
-        if (onUpdate) onUpdate();
+        setIsSending(true);
+        try {
+            await addComment(studentId, {
+                user: currentUser.email,
+                text: text
+            });
+            setText('');
+            if (onUpdate) onUpdate();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSending(false);
+        }
     };
 
     return (
@@ -54,8 +62,8 @@ export default function CommentLog({ studentId, comments, onUpdate }) {
                     value={text}
                     onChange={e => setText(e.target.value)}
                 />
-                <button type="submit" disabled={!text} className="px-4 py-2 bg-blue-600 text-white rounded font-bold text-sm hover:bg-blue-700 disabled:opacity-50">
-                    Enviar
+                <button type="submit" disabled={!text || isSending} className="px-4 py-2 bg-blue-600 text-white rounded font-bold text-sm hover:bg-blue-700 disabled:opacity-50">
+                    {isSending ? '...' : 'Enviar'}
                 </button>
             </form>
         </div>

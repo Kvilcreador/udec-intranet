@@ -13,14 +13,23 @@ export default function Dashboard() {
 
   // Initial load
   useEffect(() => {
-    if (currentUser) {
-      setStudents(getStudentsForUser(currentUser.email));
+    async function loadData() {
+      if (currentUser) {
+        try {
+          const data = await getStudentsForUser(currentUser.email);
+          setStudents(data);
+        } catch (error) {
+          console.error("Failed to load students:", error);
+        }
+      }
     }
+    loadData();
   }, [currentUser]);
 
-  const refreshData = () => {
+  const refreshData = async () => {
     if (currentUser) {
-      setStudents([...getStudentsForUser(currentUser.email)]); // Spread to force re-render
+      const data = await getStudentsForUser(currentUser.email);
+      setStudents(data);
     }
   };
 

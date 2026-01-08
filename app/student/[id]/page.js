@@ -13,10 +13,14 @@ export default function StudentPage() {
     const [student, setStudent] = useState(null);
 
     // Helper to refresh data
-    const refreshStudent = () => {
+    const refreshStudent = async () => {
         if (id) {
-            const s = getStudentById(id);
-            setStudent({ ...s }); // Copy to safe update
+            try {
+                const s = await getStudentById(id);
+                setStudent(s);
+            } catch (e) {
+                console.error(e);
+            }
         }
     };
 

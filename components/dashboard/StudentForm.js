@@ -14,21 +14,30 @@ export default function StudentForm({ onSuccess }) {
         priority: 'LOW' // Default green
     });
 
-    const handleSubmit = (e) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.name && formData.id && formData.career && formData.antecedents) {
-            addStudent(formData);
-            setFormData({
-                name: '',
-                id: '',
-                career: '',
-                antecedents: '',
-                source: 'DISE',
-                destination: 'CADE',
-                destinationDetail: '',
-                priority: 'LOW'
-            });
-            if (onSuccess) onSuccess();
+            setIsSubmitting(true);
+            try {
+                await addStudent(formData);
+                setFormData({
+                    name: '',
+                    id: '',
+                    career: '',
+                    antecedents: '',
+                    source: 'DISE',
+                    destination: 'CADE',
+                    destinationDetail: '',
+                    priority: 'LOW'
+                });
+                if (onSuccess) onSuccess();
+            } catch (error) {
+                alert('Error al guardar: ' + error.message);
+            } finally {
+                setIsSubmitting(false);
+            }
         } else {
             alert('Complete los campos obligatorios');
         }
@@ -143,8 +152,12 @@ export default function StudentForm({ onSuccess }) {
                     </div>
                 </div>
 
-                <button type="submit" className="bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 mt-2">
-                    Guardar Ficha
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isSubmitting ? 'Guardando...' : 'Guardar Ficha'}
                 </button>
             </form>
         </div>
