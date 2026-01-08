@@ -8,6 +8,7 @@ export default function StudentForm({ onSuccess }) {
         id: '',
         career: '',
         antecedents: '',
+        source: 'DISE', // Default source
         destination: 'CADE',
         destinationDetail: '',
         priority: 'LOW' // Default green
@@ -22,6 +23,7 @@ export default function StudentForm({ onSuccess }) {
                 id: '',
                 career: '',
                 antecedents: '',
+                source: 'DISE',
                 destination: 'CADE',
                 destinationDetail: '',
                 priority: 'LOW'
@@ -79,6 +81,22 @@ export default function StudentForm({ onSuccess }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1">
+                        <label className="text-xs font-bold text-gray-500">Entidad Derivadora (Origen)</label>
+                        <select
+                            name="source"
+                            value={formData.source}
+                            onChange={handleChange}
+                            className="p-2 border rounded bg-gray-50 text-sm w-full"
+                        >
+                            <option value="DISE">DISE</option>
+                            <option value="CADE">CADE</option>
+                            <option value="OTROS">OTROS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
                         <label className="text-xs font-bold text-gray-500">Destino Derivación</label>
                         <div className="flex gap-2">
                             <select
@@ -112,10 +130,10 @@ export default function StudentForm({ onSuccess }) {
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, priority: level }))}
                                     className={`flex-1 py-2 text-xs font-bold rounded border transition-all ${formData.priority === level
-                                            ? level === 'HIGH' ? 'bg-red-500 text-white border-red-600'
-                                                : level === 'MEDIUM' ? 'bg-yellow-400 text-black border-yellow-500'
-                                                    : 'bg-green-500 text-white border-green-600'
-                                            : 'bg-white text-gray-400 border-gray-200'
+                                        ? level === 'HIGH' ? 'bg-red-500 text-white border-red-600'
+                                            : level === 'MEDIUM' ? 'bg-yellow-400 text-black border-yellow-500'
+                                                : 'bg-green-500 text-white border-green-600'
+                                        : 'bg-white text-gray-400 border-gray-200'
                                         }`}
                                 >
                                     {level === 'HIGH' ? '🔴 CRÍTICO' : level === 'MEDIUM' ? '🟡 ALERTA' : '🟢 NORMAL'}
