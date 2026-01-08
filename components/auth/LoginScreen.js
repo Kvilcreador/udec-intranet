@@ -23,7 +23,7 @@ export default function LoginScreen() {
             <div className="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="bg-blue-600 p-6 text-center">
                     <h1 className="text-white text-2xl font-bold mb-1">UDEC Gestión</h1>
-                    <p className="text-blue-100 text-sm">Entorno de Pruebas (Beta)</p>
+                    <p className="text-blue-100 text-sm">Entorno de Pruebas v2.0</p>
                 </div>
 
                 <div className="p-8">
