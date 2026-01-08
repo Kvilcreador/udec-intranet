@@ -35,8 +35,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Admin specific: Manual Entry Form */}
-      {currentUser?.role === 'admin' && (
+      {/* Data Entry Form: Available for all logged in users for the persistent test */}
+      {currentUser && (
         <div className="mb-8">
           <button
             onClick={() => setShowForm(!showForm)}
