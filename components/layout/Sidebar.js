@@ -6,7 +6,7 @@ import styles from './Layout.module.css';
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const { currentUser, login, logout } = useAuth(); // Ensure logout is destructured if available
+    const { currentUser, logout } = useAuth(); // Ensure logout is destructured if available
 
     // Helper to simulate logout in this simple version
     const handleLogout = () => {
