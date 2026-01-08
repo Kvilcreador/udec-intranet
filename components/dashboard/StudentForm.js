@@ -20,7 +20,7 @@ const CONSULTATION_REASONS = [
 export default function StudentForm({ onSuccess }) {
     const [formData, setFormData] = useState({
         name: '',
-        id: '',
+        matricula: '',
         career: '',
         antecedents: '',
         source: 'DISE', // Default source
@@ -34,13 +34,13 @@ export default function StudentForm({ onSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (formData.name && formData.id && formData.career && formData.antecedents) {
+        if (formData.name && formData.matricula && formData.career && formData.antecedents) {
             setIsSubmitting(true);
             try {
                 await addStudent(formData);
                 setFormData({
                     name: '',
-                    id: '',
+                    matricula: '',
                     career: '',
                     antecedents: '',
                     source: 'DISE',
@@ -81,9 +81,9 @@ export default function StudentForm({ onSuccess }) {
                         className="p-2 border rounded bg-gray-50 text-sm"
                     />
                     <input
-                        name="id"
+                        name="matricula"
                         placeholder="Matrícula"
-                        value={formData.id}
+                        value={formData.matricula}
                         onChange={handleChange}
                         className="p-2 border rounded bg-gray-50 text-sm"
                     />

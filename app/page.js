@@ -94,7 +94,7 @@ export default function Dashboard() {
                   <td className="p-4 font-medium">
                     <div className="flex flex-col">
                       <span className="text-gray-900 font-bold">{student.name}</span>
-                      <span className="text-xs text-muted">{student.id}</span>
+                      <span className="text-xs text-muted">{student.matricula}</span>
                     </div>
                   </td>
                   <td className="p-4 text-gray-600">{student.career}</td>

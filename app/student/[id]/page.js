@@ -62,7 +62,7 @@ export default function StudentPage() {
                         <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
                         <div className="flex flex-col text-sm text-gray-500 mt-1">
                             <span>{student.career}</span>
-                            <span>ID: {student.id}</span>
+                            <span>ID: {student.matricula}</span>
                         </div>
                     </div>
                 </div>
