@@ -7,6 +7,11 @@ import LoginScreen from '@/components/auth/LoginScreen';
 export default function Shell({ children }) {
     const { currentUser } = useAuth();
 
+    // Debug logging
+    if (typeof window !== 'undefined') {
+        console.log("Shell Render: User is", currentUser ? currentUser.email : "null");
+    }
+
     if (!currentUser) return <LoginScreen />;
 
     return (
