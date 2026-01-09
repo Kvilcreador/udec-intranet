@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { getUser } from '@/lib/data';
 import RiskBadge from '@/components/ui/RiskBadge';
@@ -20,19 +20,22 @@ export default function Dashboard() {
     const user = getUser(currentUser.email); // Get full user details including role/area
     if (!user) return;
 
+    console.log("Setting up snapshot listener for:", user.email, user.role);
+
     const studentsRef = collection(db, 'students');
     let q;
 
     if (user.role === 'admin') {
-      q = query(studentsRef);
+      q = query(studentsRef, orderBy('createdAt', 'desc'));
     } else if (user.role === 'professional') {
-      q = query(studentsRef, where("destination", "==", user.area));
+      q = query(studentsRef, where("destination", "==", user.area), orderBy('createdAt', 'desc'));
     } else {
       setStudents([]);
       return;
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("Snapshot received! Docs count:", snapshot.docs.length);
       const data = snapshot.docs.map(doc => {
         const d = doc.data();
         return {
@@ -42,6 +45,8 @@ export default function Dashboard() {
         };
       });
       setStudents(data);
+    }, (error) => {
+      console.error("Snapshot error:", error);
     });
 
     return () => unsubscribe();
