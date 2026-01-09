@@ -15,14 +15,21 @@ export default function CommentLog({ studentId, comments, onUpdate }) {
 
         setIsSending(true);
         try {
-            await addComment(studentId, {
+            const sendPromise = addComment(studentId, {
                 user: currentUser.email,
                 text: text
             });
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout")), 10000)
+            );
+
+            await Promise.race([sendPromise, timeoutPromise]);
+
             setText('');
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error(error);
+            alert("No se pudo enviar el comentario. Posible bloqueo de red.");
         } finally {
             setIsSending(false);
         }
@@ -62,8 +69,10 @@ export default function CommentLog({ studentId, comments, onUpdate }) {
                     value={text}
                     onChange={e => setText(e.target.value)}
                 />
-                <button type="submit" disabled={!text || isSending} className="px-4 py-2 bg-blue-600 text-white rounded font-bold text-sm hover:bg-blue-700 disabled:opacity-50">
-                    {isSending ? '...' : 'Enviar'}
+                <button type="submit" disabled={!text || isSending} className="px-4 py-2 bg-blue-600 text-white rounded font-bold text-sm hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center min-w-[80px]">
+                    {isSending ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : 'Enviar'}
                 </button>
             </form>
         </div>
