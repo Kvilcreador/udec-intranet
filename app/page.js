@@ -43,6 +43,11 @@ export default function Dashboard() {
           matricula: d.matricula || d.id, // Normalize matricula
           id: doc.id // Force Firestore ID
         };
+      }).sort((a, b) => {
+        // Sort descending (newest first) - handling Firestore Timestamps
+        const dateA = a.createdAt?.seconds || 0;
+        const dateB = b.createdAt?.seconds || 0;
+        return dateB - dateA;
       });
       setStudents(data);
     }, (error) => {
