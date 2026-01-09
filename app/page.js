@@ -46,7 +46,7 @@ export default function Dashboard() {
         alert(`✅ Se subieron ${result.synced} fichas a la nube.`);
         fetchCloudData(); // Refresh to see real IDs
       } else if (result.failed > 0) {
-        alert(`❌ Falló la subida de ${result.failed} items. Revisa tu conexión.`);
+        alert(`❌ Falló la subida de ${result.failed} items. Error: ${result.lastError || 'Desconocido'}\n\nSi dice 'Permission Denied', avisa al soporte.`);
       } else {
         alert("No hay items pendientes.");
       }
