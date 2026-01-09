@@ -26,9 +26,9 @@ export default function Dashboard() {
     let q;
 
     if (user.role === 'admin') {
-      q = query(studentsRef, orderBy('createdAt', 'desc'));
+      q = query(studentsRef);
     } else if (user.role === 'professional') {
-      q = query(studentsRef, where("destination", "==", user.area), orderBy('createdAt', 'desc'));
+      q = query(studentsRef, where("destination", "==", user.area));
     } else {
       setStudents([]);
       return;
