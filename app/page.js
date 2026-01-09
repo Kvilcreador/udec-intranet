@@ -47,6 +47,7 @@ export default function Dashboard() {
       setStudents(data);
     }, (error) => {
       console.error("Snapshot error:", error);
+      alert("Error de conexión con la Base de Datos: " + error.message + "\n\nVerifique que las 'Reglas de Seguridad' en Firebase permitan el acceso.");
     });
 
     return () => unsubscribe();
