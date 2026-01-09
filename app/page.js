@@ -47,12 +47,7 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [currentUser]);
 
-  const refreshData = async () => {
-    if (currentUser) {
-      const data = await getStudentsForUser(currentUser.email);
-      setStudents(data);
-    }
-  };
+
 
   const highRiskCount = students.filter(s => s.priority === 'HIGH').length;
 
@@ -76,7 +71,6 @@ export default function Dashboard() {
           </button>
 
           {showForm && <StudentForm onSuccess={() => {
-            refreshData();
             setShowForm(false);
           }} />}
         </div>
