@@ -1,9 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { getUser } from '@/lib/data';
+import { getStudentsForUser } from '@/lib/data';
 import RiskBadge from '@/components/ui/RiskBadge';
 import Link from 'next/link';
 import StudentForm from '@/components/dashboard/StudentForm';
@@ -12,79 +10,32 @@ export default function Dashboard() {
   const { currentUser } = useAuth();
   const [students, setStudents] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Real-time listener
-  useEffect(() => {
+  // Requirement 3: Fetch on Load (Cloud First)
+  const fetchCloudData = async () => {
     if (!currentUser) return;
 
-    const user = getUser(currentUser.email); // Get full user details including role/area
-    if (!user) return;
-
-    console.log("Setting up snapshot listener for:", user.email, user.role);
-
-    const studentsRef = collection(db, 'students');
-    let q;
-
-    if (user.role === 'admin') {
-      q = query(studentsRef);
-    } else if (user.role === 'professional') {
-      q = query(studentsRef, where("destination", "==", user.area));
-    } else {
-      setStudents([]);
-      return;
-    }
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log("Snapshot received! Docs count:", snapshot.docs.length);
-      const data = snapshot.docs.map(doc => {
-        const d = doc.data();
-        return {
-          ...d,
-          matricula: d.matricula || d.id, // Normalize matricula
-          id: doc.id // Force Firestore ID
-        };
-      }).sort((a, b) => {
-        // Sort descending (newest first) - handling Firestore Timestamps
-        const dateA = a.createdAt?.seconds || 0;
-        const dateB = b.createdAt?.seconds || 0;
-        return dateB - dateA;
-      });
-      setStudents(data);
-    }, (error) => {
-      console.error("Snapshot error:", error);
-      alert("Error de conexión con la Base de Datos: " + error.message + "\n\nVerifique que las 'Reglas de Seguridad' en Firebase permitan el acceso.");
-    });
-
-    return () => unsubscribe();
-  }, [currentUser]);
-
-
-
-  const highRiskCount = students.filter(s => s.priority === 'HIGH').length;
-
-  const testConnection = async () => {
+    setLoading(true);
     try {
-      const { addDoc, collection, getDocs, query, limit } = await import('firebase/firestore');
-      const testRef = collection(db, 'connectivity_logs');
-
-      // 1. Write Test
-      const docRef = await addDoc(testRef, {
-        timestamp: new Date(),
-        device: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
-      });
-      console.log("Written test doc:", docRef.id);
-
-      // 2. Read Test
-      const q = query(testRef, limit(1));
-      const snapshot = await getDocs(q);
-
-      alert(`✅ DIAGNÓSTICO EXITOSO:\n\nEscritura: OK (ID: ${docRef.id.substring(0, 6)}...)\nLectura: OK (Docs: ${snapshot.size})\n\nConclusión: Tu dispositivo tiene conexión total con Google.`);
-
-    } catch (e) {
-      console.error(e);
-      alert(`❌ FALLO DE DIAGNÓSTICO:\n${e.message}\n\nPosible causa: Bloqueo de red o Reglas de Firebase vencidas.`);
+      const data = await getStudentsForUser(currentUser.email);
+      setStudents(data);
+      setIsConnected(true); // If we got data (empty or not) without error, we are connected.
+    } catch (error) {
+      console.error("Cloud Connection Failed:", error);
+      setIsConnected(false);
+      alert("Error Crítico: No se pudo conectar con la Nube de Google.\n\n" + error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCloudData();
+  }, [currentUser]);
+
+  const highRiskCount = students.filter(s => s.priority === 'HIGH').length;
 
   return (
     <div className="container">
@@ -92,28 +43,23 @@ export default function Dashboard() {
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2">
             Panel de Gestión
-            <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500 border" title="Registros en Base de Datos">
-              DB: {students.length}
+            {/* Requirement 5: Connection Diagnostic Indicator */}
+            <span className={`text-xs font-bold px-2 py-1 rounded border flex items-center gap-1 ${isConnected ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
+              {isConnected ? '🟢 Conectado a Firebase' : '🔴 Sin Conexión'}
             </span>
             <button
-              onClick={testConnection}
-              className="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded border border-purple-100 hover:bg-purple-100"
-            >
-              ⚡ Probar
-            </button>
-            <button
-              onClick={() => window.location.reload()}
+              onClick={fetchCloudData}
               className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100"
-              title="Forzar recarga completa"
+              title="Forzar sincronización"
             >
-              ↻
+              ↻ Sincronizar
             </button>
           </h1>
           <p className="text-muted">Bienvenido, {currentUser?.name}</p>
         </div>
       </header>
 
-      {/* Data Entry Form: Available for all logged in users for the persistent test */}
+      {/* Data Entry Form */}
       {currentUser && (
         <div className="mb-8">
           <button
@@ -125,6 +71,7 @@ export default function Dashboard() {
 
           {showForm && <StudentForm onSuccess={() => {
             setShowForm(false);
+            fetchCloudData(); // Re-fetch immediately after save
           }} />}
         </div>
       )}
@@ -132,12 +79,16 @@ export default function Dashboard() {
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-card p-6 rounded-lg border-l-4 border-blue-500 shadow-sm">
-          <h3 className="text-muted text-sm font-bold uppercase mb-1">Total Estudiantes Visibles</h3>
-          <p className="text-3xl font-bold text-gray-800">{students.length}</p>
+          <h3 className="text-muted text-sm font-bold uppercase mb-1">Total Estudiantes (Nube)</h3>
+          <p className="text-3xl font-bold text-gray-800">
+            {loading ? '...' : students.length}
+          </p>
         </div>
         <div className="bg-card p-6 rounded-lg border-l-4 border-red-500 shadow-sm">
           <h3 className="text-muted text-sm font-bold uppercase mb-1">Casos Críticos</h3>
-          <p className="text-3xl font-bold text-red-600">{highRiskCount}</p>
+          <p className="text-3xl font-bold text-red-600">
+            {loading ? '...' : highRiskCount}
+          </p>
         </div>
       </div>
 
@@ -181,7 +132,7 @@ export default function Dashboard() {
               )) : (
                 <tr>
                   <td colSpan="5" className="p-8 text-center text-gray-400 italic">
-                    No hay estudiantes asignados a su vista.
+                    {loading ? 'Cargando datos desde Google Cloud...' : 'No hay registros en la nube.'}
                   </td>
                 </tr>
               )}
