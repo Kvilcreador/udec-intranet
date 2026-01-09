@@ -66,7 +66,19 @@ export default function Dashboard() {
     <div className="container">
       <header className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-xl font-bold">Panel de Gestión</h1>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            Panel de Gestión
+            <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500 border" title="Registros en Base de Datos">
+              DB: {students.length}
+            </span>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100"
+              title="Forzar recarga completa"
+            >
+              ↻ Recargar
+            </button>
+          </h1>
           <p className="text-muted">Bienvenido, {currentUser?.name}</p>
         </div>
       </header>
