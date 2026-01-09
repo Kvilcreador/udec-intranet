@@ -1,7 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { getStudentsForUser } from '@/lib/data';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { getUser } from '@/lib/data';
 import RiskBadge from '@/components/ui/RiskBadge';
 import Link from 'next/link';
 import StudentForm from '@/components/dashboard/StudentForm';
@@ -11,19 +13,38 @@ export default function Dashboard() {
   const [students, setStudents] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  // Initial load
+  // Real-time listener
   useEffect(() => {
-    async function loadData() {
-      if (currentUser) {
-        try {
-          const data = await getStudentsForUser(currentUser.email);
-          setStudents(data);
-        } catch (error) {
-          console.error("Failed to load students:", error);
-        }
-      }
+    if (!currentUser) return;
+
+    const user = getUser(currentUser.email); // Get full user details including role/area
+    if (!user) return;
+
+    const studentsRef = collection(db, 'students');
+    let q;
+
+    if (user.role === 'admin') {
+      q = query(studentsRef);
+    } else if (user.role === 'professional') {
+      q = query(studentsRef, where("destination", "==", user.area));
+    } else {
+      setStudents([]);
+      return;
     }
-    loadData();
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          ...d,
+          matricula: d.matricula || d.id, // Normalize matricula
+          id: doc.id // Force Firestore ID
+        };
+      });
+      setStudents(data);
+    });
+
+    return () => unsubscribe();
   }, [currentUser]);
 
   const refreshData = async () => {
