@@ -12,20 +12,29 @@ export default function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Requirement 3: Fetch on Load (Cloud First)
   const fetchCloudData = async () => {
     if (!currentUser) return;
 
     setLoading(true);
+    setErrorMsg(''); // Clear previous errors
     try {
       const data = await getStudentsForUser(currentUser.email);
       setStudents(data);
-      setIsConnected(true); // If we got data (empty or not) without error, we are connected.
+      setIsConnected(true);
     } catch (error) {
       console.error("Cloud Connection Failed:", error);
       setIsConnected(false);
-      alert("Error Crítico: No se pudo conectar con la Nube de Google.\n\n" + error.message);
+      // Translate common Firebase errors for better UX
+      let msg = error.message;
+      if (msg.includes("Missing or insufficient permissions")) {
+        msg = "Bloqueado por Reglas de Seguridad de Firebase (Permisos insuficientes).";
+      } else if (msg.includes("client is offline")) {
+        msg = "El dispositivo no tiene internet.";
+      }
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -39,24 +48,35 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <header className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            Panel de Gestión
-            {/* Requirement 5: Connection Diagnostic Indicator */}
-            <span className={`text-xs font-bold px-2 py-1 rounded border flex items-center gap-1 ${isConnected ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
-              {isConnected ? '🟢 Conectado a Firebase' : '🔴 Sin Conexión'}
-            </span>
-            <button
-              onClick={fetchCloudData}
-              className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100"
-              title="Forzar sincronización"
-            >
-              ↻ Sincronizar
-            </button>
-          </h1>
-          <p className="text-muted">Bienvenido, {currentUser?.name}</p>
+      <header className="flex flex-col mb-8 gap-2">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              Panel de Gestión
+              {/* Requirement 5: Connection Diagnostic Indicator */}
+              <span className={`text-xs font-bold px-2 py-1 rounded border flex items-center gap-1 ${isConnected ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
+                {isConnected ? '🟢 Conectado a Firebase' : '🔴 Sin Conexión'}
+              </span>
+              <button
+                onClick={fetchCloudData}
+                className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100"
+                title="Forzar sincronización"
+              >
+                ↻ Sincronizar
+              </button>
+            </h1>
+            <p className="text-muted">Bienvenido, {currentUser?.name}</p>
+          </div>
         </div>
+
+        {/* Error Logging Display */}
+        {errorMsg && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded text-sm font-mono">
+            🛑 ERROR DIAGNOSTICADO: {errorMsg}
+            <br />
+            <span className="text-xs text-red-500">Acción sugerida: Revise las 'Security Rules' en la consola de Firebase.</span>
+          </div>
+        )}
       </header>
 
       {/* Data Entry Form */}
@@ -132,7 +152,7 @@ export default function Dashboard() {
               )) : (
                 <tr>
                   <td colSpan="5" className="p-8 text-center text-gray-400 italic">
-                    {loading ? 'Cargando datos desde Google Cloud...' : 'No hay registros en la nube.'}
+                    {loading ? 'Cargando datos desde Google Cloud...' : 'No hay registros visibles.'}
                   </td>
                 </tr>
               )}
