@@ -72,15 +72,17 @@ export default function Dashboard() {
         timestamp: new Date(),
         device: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
       });
+      console.log("Written test doc:", docRef.id);
 
       // 2. Read Test
       const q = query(testRef, limit(1));
       const snapshot = await getDocs(q);
 
-      alert(`✅ DIAGNÓSTICO EXITOSO:\n\nEscritura: OK (ID: ${docRef.id})\nLectura: OK (Docs: ${snapshot.size})\n\nConexión con Google correcta.`);
+      alert(`✅ DIAGNÓSTICO EXITOSO:\n\nEscritura: OK (ID: ${docRef.id.substring(0, 6)}...)\nLectura: OK (Docs: ${snapshot.size})\n\nConclusión: Tu dispositivo tiene conexión total con Google.`);
 
     } catch (e) {
-      alert(`❌ FALLO DE DIAGNÓSTICO:\n${e.message}\n\nPosible bloqueo de red o permisos.`);
+      console.error(e);
+      alert(`❌ FALLO DE DIAGNÓSTICO:\n${e.message}\n\nPosible causa: Bloqueo de red o Reglas de Firebase vencidas.`);
     }
   };
 
