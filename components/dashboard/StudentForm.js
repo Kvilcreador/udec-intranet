@@ -37,13 +37,8 @@ export default function StudentForm({ onSuccess }) {
         if (formData.name && formData.matricula && formData.career && formData.antecedents) {
             setIsSubmitting(true);
             try {
-                // Race between the actual save and a 60s timeout (extended for slow networks)
-                const savePromise = addStudent(formData);
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("TIEMPO DE ESPERA AGOTADO: La red es extremadamente lenta. Intente usar 4G.")), 60000)
-                );
-
-                await Promise.race([savePromise, timeoutPromise]);
+                // Removed artificial timeout to allow Firestore to handle retries natively
+                await addStudent(formData);
 
                 setFormData({
                     name: '',
