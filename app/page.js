@@ -62,6 +62,28 @@ export default function Dashboard() {
 
   const highRiskCount = students.filter(s => s.priority === 'HIGH').length;
 
+  const testConnection = async () => {
+    try {
+      const { addDoc, collection, getDocs, query, limit } = await import('firebase/firestore');
+      const testRef = collection(db, 'connectivity_logs');
+
+      // 1. Write Test
+      const docRef = await addDoc(testRef, {
+        timestamp: new Date(),
+        device: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
+      });
+
+      // 2. Read Test
+      const q = query(testRef, limit(1));
+      const snapshot = await getDocs(q);
+
+      alert(`✅ DIAGNÓSTICO EXITOSO:\n\nEscritura: OK (ID: ${docRef.id})\nLectura: OK (Docs: ${snapshot.size})\n\nConexión con Google correcta.`);
+
+    } catch (e) {
+      alert(`❌ FALLO DE DIAGNÓSTICO:\n${e.message}\n\nPosible bloqueo de red o permisos.`);
+    }
+  };
+
   return (
     <div className="container">
       <header className="flex justify-between items-center mb-8">
@@ -72,11 +94,17 @@ export default function Dashboard() {
               DB: {students.length}
             </span>
             <button
+              onClick={testConnection}
+              className="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded border border-purple-100 hover:bg-purple-100"
+            >
+              ⚡ Probar
+            </button>
+            <button
               onClick={() => window.location.reload()}
               className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 hover:bg-blue-100"
               title="Forzar recarga completa"
             >
-              ↻ Recargar
+              ↻
             </button>
           </h1>
           <p className="text-muted">Bienvenido, {currentUser?.name}</p>
