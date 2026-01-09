@@ -37,10 +37,10 @@ export default function StudentForm({ onSuccess }) {
         if (formData.name && formData.matricula && formData.career && formData.antecedents) {
             setIsSubmitting(true);
             try {
-                // Race between the actual save and a 10s timeout
+                // Race between the actual save and a 60s timeout (extended for slow networks)
                 const savePromise = addStudent(formData);
                 const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("La conexión es lenta o está bloqueada. Intente recargar la página.")), 10000)
+                    setTimeout(() => reject(new Error("TIEMPO DE ESPERA AGOTADO: La red es extremadamente lenta. Intente usar 4G.")), 60000)
                 );
 
                 await Promise.race([savePromise, timeoutPromise]);
