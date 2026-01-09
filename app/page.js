@@ -52,7 +52,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
-              Panel de Gestión
+              Panel de Gestión v2.0
               {/* Requirement 5: Connection Diagnostic Indicator */}
               <span className={`text-xs font-bold px-2 py-1 rounded border flex items-center gap-1 ${isConnected ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
                 {isConnected ? '🟢 Conectado a Firebase' : '🔴 Sin Conexión'}
